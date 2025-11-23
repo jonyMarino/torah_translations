@@ -2,12 +2,21 @@ const fs = require('fs');
 const path = require('path');
 
 // Function to parse CSV file
+// Note: This is a simple CSV parser suitable for basic data without commas in values.
+// If you need to handle commas within quoted fields, consider using a CSV parsing library.
 function parseCSV(content) {
   const lines = content.trim().split('\n');
+  
+  // Validate CSV has content
+  if (lines.length < 2) return [];
+  
   const headers = lines[0].split(',').map(h => h.trim());
   const data = [];
   
   for (let i = 1; i < lines.length; i++) {
+    // Skip empty lines
+    if (lines[i].trim() === '') continue;
+    
     const values = lines[i].split(',').map(v => v.trim());
     const obj = {};
     headers.forEach((header, index) => {
