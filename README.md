@@ -6,7 +6,7 @@ Sistema de flashcards para aprendizaje de vocabulario hebreo-español con transl
 
 ```
 torah_translations/
-├── texts/                  # Archivos CSV fuente con traducciones
+├── texts/                  # Archivos TSV fuente con traducciones (.csv)
 │   ├── genesis/
 │   │   ├── bereshit.csv
 │   │   └── noah.csv
@@ -27,9 +27,9 @@ torah_translations/
 
 ### Agregar Nuevas Traducciones
 
-1. Crea o edita archivos CSV en la carpeta `texts/`
-2. Formato del CSV (separado por tabulaciones):
-   ```csv
+1. Crea o edita archivos TSV en la carpeta `texts/` (guardados con extensión `.csv`)
+2. Formato del archivo (separado por tabulaciones):
+   ```tsv
    original	translation	phonetics	format	notes
    LIBRO DE GENESIS			book	
    PARASHAT BERESHIT	PARASHAT BERESHIT		part	
@@ -43,7 +43,7 @@ torah_translations/
 
 3. Los archivos se organizan por libro/sección en subcarpetas
 
-### Campos del CSV
+### Campos del archivo TSV
 
 - **original**: Texto original en hebreo o título de sección
 - **translation**: Traducción al español
@@ -63,7 +63,7 @@ torah_translations/
 # Instalar dependencias
 npm install
 
-# Generar archivos JSON
+# Generar archivos JSON desde archivos TSV
 npm run build
 ```
 
@@ -80,8 +80,8 @@ El proyecto usa GitHub Actions para:
 
 ## 📚 Formato de Datos
 
-### Archivo CSV de Entrada
-```csv
+### Archivo TSV de Entrada
+```tsv
 original	translation	phonetics	format	notes
 LIBRO DE GENESIS			book	
 PARASHAT BERESHIT	PARASHAT BERESHIT		part	
@@ -141,7 +141,7 @@ La página principal muestra:
 - npm
 
 ### Scripts Disponibles
-- `npm run build` - Genera archivos JSON desde CSV
+- `npm run build` - Genera archivos JSON desde archivos TSV
 
 ## 📝 Licencia
 

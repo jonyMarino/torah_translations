@@ -3,10 +3,10 @@ const path = require('path');
 
 // Function to parse TSV (Tab-Separated Values) file
 // Parses files with the format: original	translation	phonetics	format	notes
-function parseCSV(content) {
+function parseTSV(content) {
   const lines = content.trim().split('\n');
   
-  // Validate CSV has content
+  // Validate TSV has content
   if (lines.length < 2) return [];
   
   const headers = lines[0].split('\t').map(h => h.trim());
@@ -27,8 +27,8 @@ function parseCSV(content) {
   return data;
 }
 
-// Function to recursively find all CSV files
-function findCSVFiles(dir, baseDir = dir) {
+// Function to recursively find all TSV files
+function findTSVFiles(dir, baseDir = dir) {
   let results = [];
   const files = fs.readdirSync(dir);
   
@@ -37,7 +37,7 @@ function findCSVFiles(dir, baseDir = dir) {
     const stat = fs.statSync(filePath);
     
     if (stat.isDirectory()) {
-      results = results.concat(findCSVFiles(filePath, baseDir));
+      results = results.concat(findTSVFiles(filePath, baseDir));
     } else if (path.extname(file) === '.csv') {
       results.push({
         fullPath: filePath,
@@ -84,8 +84,8 @@ function generateFlashcards() {
     fs.mkdirSync(distDir, { recursive: true });
   }
   
-  // Find all CSV files
-  const csvFiles = findCSVFiles(textsDir);
+  // Find all TSV files (with .csv extension)
+  const tsvFiles = findTSVFiles(textsDir);
   
   // Index to store metadata about all files
   const index = {
@@ -93,13 +93,13 @@ function generateFlashcards() {
     files: []
   };
   
-  // Process each CSV file
-  csvFiles.forEach(({ fullPath, relativePath }) => {
+  // Process each TSV file
+  tsvFiles.forEach(({ fullPath, relativePath }) => {
     console.log(`Processing: ${relativePath}`);
     
-    // Read and parse CSV
+    // Read and parse TSV
     const content = fs.readFileSync(fullPath, 'utf-8');
-    const flashcards = parseCSV(content);
+    const flashcards = parseTSV(content);
     
     // Create corresponding JSON file path
     const jsonRelativePath = relativePath.replace('.csv', '.json');
@@ -133,7 +133,7 @@ function generateFlashcards() {
   copyPublicFiles(publicDir, distDir);
   
   console.log(`\nGeneration complete!`);
-  console.log(`Processed ${csvFiles.length} files`);
+  console.log(`Processed ${tsvFiles.length} files`);
   console.log(`Total flashcards: ${index.files.reduce((sum, f) => sum + f.cardCount, 0)}`);
   console.log(`Output directory: ${distDir}`);
 }
