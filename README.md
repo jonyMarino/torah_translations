@@ -90,24 +90,28 @@ PARASHAT BERESHIT	PARASHAT BERESHIT		part
 ```
 
 ### Archivo JSON de Salida
+Los archivos JSON generados contienen solo las palabras/frases (entradas con formato vacío), excluyendo metadatos estructurales:
+
 ```json
 [
-  {
-    "original": "LIBRO DE GENESIS",
-    "translation": "",
-    "phonetics": "",
-    "format": "book",
-    "notes": ""
-  },
   {
     "original": "בְּרֵאשִׁית",
     "translation": "En el principio",
     "phonetics": "Bereshit",
     "format": "",
     "notes": ""
+  },
+  {
+    "original": "בָּרָא",
+    "translation": "creó",
+    "phonetics": "bara",
+    "format": "",
+    "notes": ""
   }
 ]
 ```
+
+**Nota:** Los archivos TSV de entrada contienen metadatos estructurales (book, part, chapter, subchapter, intro) que se utilizan para organización pero no se incluyen en el JSON de salida. Solo las entradas con `format` vacío (palabras/frases) aparecen en los flashcards.
 
 ### Índice (index.json)
 ```json
