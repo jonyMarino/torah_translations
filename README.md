@@ -6,7 +6,7 @@ Sistema de flashcards para aprendizaje de vocabulario hebreo-español con transl
 
 ```
 torah_translations/
-├── texts/                  # Archivos CSV fuente con traducciones
+├── texts/                  # Archivos TSV fuente con traducciones (.csv)
 │   ├── genesis/
 │   │   ├── bereshit.csv
 │   │   └── noah.csv
@@ -27,15 +27,35 @@ torah_translations/
 
 ### Agregar Nuevas Traducciones
 
-1. Crea o edita archivos CSV en la carpeta `texts/`
-2. Formato del CSV:
-   ```csv
-   hebrew,transliteration,spanish
-   בְּרֵאשִׁית,Bereshit,En el principio
-   בָּרָא,bara,creó
+1. Crea o edita archivos TSV en la carpeta `texts/` (guardados con extensión `.csv`)
+2. Formato del archivo (separado por tabulaciones):
+   ```tsv
+   original	translation	phonetics	format	notes
+   LIBRO DE GENESIS			book	
+   PARASHAT BERESHIT	PARASHAT BERESHIT		part	
+   CAPÍTULO 1	CHAPTER 1		chapter	
+   א	1		subchapter	
+   En el principio Dios creó los cielos y la tierra.			intro	
+   בְּרֵאשִׁית	En el principio	Bereshit		
+   בָּרָא	creó	bara		
+   אֱלֹהִים	Dios	Elohim		
    ```
 
 3. Los archivos se organizan por libro/sección en subcarpetas
+
+### Campos del archivo TSV
+
+- **original**: Texto original en hebreo o título de sección
+- **translation**: Traducción al español
+- **phonetics**: Transliteración fonética del hebreo
+- **format**: Tipo de entrada con las siguientes opciones:
+  - `book`: Título del libro
+  - `part`: Parte o parashat
+  - `chapter`: Capítulo
+  - `subchapter`: Subcapítulo o versículo
+  - `intro`: Introducción o explicación
+  - (vacío): Palabra o frase del cuerpo del texto
+- **notes**: Notas adicionales o comentarios
 
 ### Generación Local
 
@@ -43,7 +63,7 @@ torah_translations/
 # Instalar dependencias
 npm install
 
-# Generar archivos JSON
+# Generar archivos JSON desde archivos TSV
 npm run build
 ```
 
@@ -60,28 +80,38 @@ El proyecto usa GitHub Actions para:
 
 ## 📚 Formato de Datos
 
-### Archivo CSV de Entrada
-```csv
-hebrew,transliteration,spanish
-בְּרֵאשִׁית,Bereshit,En el principio
-בָּרָא,bara,creó
+### Archivo TSV de Entrada
+```tsv
+original	translation	phonetics	format	notes
+LIBRO DE GENESIS			book	
+PARASHAT BERESHIT	PARASHAT BERESHIT		part	
+בְּרֵאשִׁית	En el principio	Bereshit		
+בָּרָא	creó	bara		
 ```
 
 ### Archivo JSON de Salida
+Los archivos JSON generados contienen solo las palabras/frases (entradas con formato vacío), excluyendo metadatos estructurales:
+
 ```json
 [
   {
-    "hebrew": "בְּרֵאשִׁית",
-    "transliteration": "Bereshit",
-    "spanish": "En el principio"
+    "original": "בְּרֵאשִׁית",
+    "translation": "En el principio",
+    "phonetics": "Bereshit",
+    "format": "",
+    "notes": ""
   },
   {
-    "hebrew": "בָּרָא",
-    "transliteration": "bara",
-    "spanish": "creó"
+    "original": "בָּרָא",
+    "translation": "creó",
+    "phonetics": "bara",
+    "format": "",
+    "notes": ""
   }
 ]
 ```
+
+**Nota:** Los archivos TSV de entrada contienen metadatos estructurales (book, part, chapter, subchapter, intro) que se utilizan para organización pero no se incluyen en el JSON de salida. Solo las entradas con `format` vacío (palabras/frases) aparecen en los flashcards.
 
 ### Índice (index.json)
 ```json
@@ -115,7 +145,7 @@ La página principal muestra:
 - npm
 
 ### Scripts Disponibles
-- `npm run build` - Genera archivos JSON desde CSV
+- `npm run build` - Genera archivos JSON desde archivos TSV
 
 ## 📝 Licencia
 

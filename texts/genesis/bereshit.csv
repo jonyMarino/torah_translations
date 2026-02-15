@@ -1,8 +1,13 @@
-hebrew,transliteration,spanish
-בְּרֵאשִׁית,Bereshit,En el principio
-בָּרָא,bara,creó
-אֱלֹהִים,Elohim,Dios
-אֵת,et,a
-הַשָּׁמַיִם,hashamayim,los cielos
-וְאֵת,ve'et,y a
-הָאָרֶץ,ha'aretz,la tierra
+original	translation	phonetics	format	notes
+LIBRO DE GÉNESIS			book	
+PARASHAT BERESHIT	PARASHAT BERESHIT		part	
+CAPÍTULO 1	CHAPTER 1		chapter	
+א	1		subchapter	
+En el principio Dios creó los cielos y la tierra.			intro	
+בְּרֵאשִׁית	En el principio	Bereshit		
+בָּרָא	creó	bara		
+אֱלֹהִים	Dios	Elohim		
+אֵת	a	et		
+הַשָּׁמַיִם	los cielos	hashamayim		
+וְאֵת	y a	ve'et		
+הָאָרֶץ	la tierra	ha'aretz		
