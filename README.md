@@ -28,14 +28,34 @@ torah_translations/
 ### Agregar Nuevas Traducciones
 
 1. Crea o edita archivos CSV en la carpeta `texts/`
-2. Formato del CSV:
+2. Formato del CSV (separado por tabulaciones):
    ```csv
-   hebrew,transliteration,spanish
-   בְּרֵאשִׁית,Bereshit,En el principio
-   בָּרָא,bara,creó
+   original	translation	phonetics	format	notes
+   LIBRO DE GENESIS			book	
+   PARASHAT BERESHIT	PARASHAT BERESHIT		part	
+   CAPÍTULO 1	CHAPTER 1		chapter	
+   א	1		subchapter	
+   En el principio Dios creó los cielos y la tierra.			intro	
+   בְּרֵאשִׁית	En el principio	Bereshit		
+   בָּרָא	creó	bara		
+   אֱלֹהִים	Dios	Elohim		
    ```
 
 3. Los archivos se organizan por libro/sección en subcarpetas
+
+### Campos del CSV
+
+- **original**: Texto original en hebreo o título de sección
+- **translation**: Traducción al español
+- **phonetics**: Transliteración fonética del hebreo
+- **format**: Tipo de entrada con las siguientes opciones:
+  - `book`: Título del libro
+  - `part`: Parte o parashat
+  - `chapter`: Capítulo
+  - `subchapter`: Subcapítulo o versículo
+  - `intro`: Introducción o explicación
+  - (vacío): Palabra o frase del cuerpo del texto
+- **notes**: Notas adicionales o comentarios
 
 ### Generación Local
 
@@ -62,23 +82,29 @@ El proyecto usa GitHub Actions para:
 
 ### Archivo CSV de Entrada
 ```csv
-hebrew,transliteration,spanish
-בְּרֵאשִׁית,Bereshit,En el principio
-בָּרָא,bara,creó
+original	translation	phonetics	format	notes
+LIBRO DE GENESIS			book	
+PARASHAT BERESHIT	PARASHAT BERESHIT		part	
+בְּרֵאשִׁית	En el principio	Bereshit		
+בָּרָא	creó	bara		
 ```
 
 ### Archivo JSON de Salida
 ```json
 [
   {
-    "hebrew": "בְּרֵאשִׁית",
-    "transliteration": "Bereshit",
-    "spanish": "En el principio"
+    "original": "LIBRO DE GENESIS",
+    "translation": "",
+    "phonetics": "",
+    "format": "book",
+    "notes": ""
   },
   {
-    "hebrew": "בָּרָא",
-    "transliteration": "bara",
-    "spanish": "creó"
+    "original": "בְּרֵאשִׁית",
+    "translation": "En el principio",
+    "phonetics": "Bereshit",
+    "format": "",
+    "notes": ""
   }
 ]
 ```
