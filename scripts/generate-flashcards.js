@@ -102,7 +102,7 @@ function generateFlashcards() {
     const allEntries = parseTSV(content);
     
     // Filter to only include entries with empty format field (actual flashcards)
-    const flashcards = allEntries.filter(entry => !entry.format || entry.format === '');
+    const flashcards = allEntries.filter(entry => !entry.format);
     
     // Create corresponding JSON file path
     const jsonRelativePath = relativePath.replace('.csv', '.json');
