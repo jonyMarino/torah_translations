@@ -4,8 +4,9 @@ Flask web application for generating interlinear Hebrew–Spanish translations u
 
 ## Requirements
 
-- Python 3.10+
-- A **GitHub token** with access to [GitHub Models](https://github.com/marketplace/models) (set as `GITHUB_TOKEN` environment variable)
+- Python 3.11+ (required by `github-copilot-sdk`)
+- [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli) installed and available in `PATH` (the Python SDK uses the CLI as its local JSON-RPC runtime)
+- A **GitHub token** with Copilot access (set as `GITHUB_TOKEN` environment variable)
 
 ## Installation
 
@@ -36,7 +37,7 @@ Then open <http://localhost:5000> in your browser.
 2. **Select the AI model** (`gpt-4o`, `gpt-4o-mini`, `o3-mini`, …).
 3. *(Optional)* Fill in metadata fields: book name, parashah, chapter, initial verse.
 4. Set the **destination folder** inside `texts/` (e.g. `genesis` or `bamidbar/naso`) and the **output filename** (without extension, e.g. `bereshit`).
-5. Click **Traducir** — the app calls the AI model and shows a preview table.
+5. Click **Traducir** — the app uses the GitHub Copilot SDK to call the selected model and shows a preview table.
 6. Click **Guardar TSV** — the file is written to `texts/{folder}/{filename}.csv`.
 
 ## Output format

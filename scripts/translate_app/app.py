@@ -1,9 +1,10 @@
 import json
 import os
 import re
+import asyncio
 
 from flask import Flask, jsonify, render_template, request
-from openai import OpenAI
+from copilot import CopilotClient
 
 app = Flask(__name__)
 
@@ -13,8 +14,7 @@ TEXTS_BASE_DIR = os.environ.get(
 )
 
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
-GITHUB_MODELS_ENDPOINT = "https://models.inference.ai.azure.com"
-
+TRANSLATION_TIMEOUT_SECONDS = 120
 TRANSLATION_PROMPT = """Eres un traductor experto de hebreo bíblico a español. Tu tarea es generar una traducción interlineada (palabra por palabra o grupo de palabras) de un texto en hebreo bíblico.
 
 REGLAS ESTRICTAS:
@@ -45,27 +45,62 @@ TEXTO HEBREO A TRADUCIR:
 {hebrew_text}"""
 
 
-def get_openai_client():
+def get_copilot_client():
     token = GITHUB_TOKEN
     if not token:
         raise ValueError("GITHUB_TOKEN environment variable is not set.")
-    return OpenAI(base_url=GITHUB_MODELS_ENDPOINT, api_key=token)
+    return CopilotClient({"github_token": token})
 
 
-def translate_hebrew(hebrew_text: str, model: str) -> list[dict]:
-    client = get_openai_client()
-    prompt = TRANSLATION_PROMPT.format(hebrew_text=hebrew_text)
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.2,
-    )
-    content = response.choices[0].message.content.strip()
-    # Extract JSON array from response (strip markdown code fences if present)
+def _extract_json_array(content: str) -> list[dict]:
     json_match = re.search(r"\[.*\]", content, re.DOTALL)
     if json_match:
         content = json_match.group(0)
     return json.loads(content)
+
+
+def _get_event_type_string(event) -> str:
+    event_type = getattr(event, "type", "")
+    return getattr(event_type, "value", str(event_type))
+
+
+async def _translate_hebrew_async(hebrew_text: str, model: str) -> list[dict]:
+    client = get_copilot_client()
+    prompt = TRANSLATION_PROMPT.format(hebrew_text=hebrew_text)
+    await client.start()
+    try:
+        session = await client.create_session({"model": model})
+        try:
+            event = await session.send_and_wait(
+                {"prompt": prompt}, timeout=TRANSLATION_TIMEOUT_SECONDS
+            )
+            content = ""
+            if event and _get_event_type_string(event) == "assistant.message":
+                data = getattr(event, "data", None)
+                content = (getattr(data, "content", "") or "").strip()
+
+            if not content:
+                # Depending on SDK/CLI event timing, send_and_wait can resolve on a non-message
+                # event (for example, session idle). In that case, recover the last assistant message.
+                for message in reversed(await session.get_messages()):
+                    if _get_event_type_string(message) == "assistant.message":
+                        data = getattr(message, "data", None)
+                        content = (getattr(data, "content", "") or "").strip()
+                        if content:
+                            break
+
+            if not content:
+                raise ValueError("No assistant message content returned by Copilot SDK.")
+
+            return _extract_json_array(content)
+        finally:
+            await session.disconnect()
+    finally:
+        await client.stop()
+
+
+def translate_hebrew(hebrew_text: str, model: str) -> list[dict]:
+    return asyncio.run(_translate_hebrew_async(hebrew_text, model))
 
 
 def build_tsv(
