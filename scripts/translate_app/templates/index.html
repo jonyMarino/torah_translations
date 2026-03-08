@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Torah Translations — Traductor Interlineado</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f4f6f9;
+      color: #1a1a2e;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+      color: #2c3e7a;
+    }
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 1.6rem;
+      margin-bottom: 1.5rem;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .card h2 {
+      font-size: 1.05rem;
+      color: #2c3e7a;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+
+    textarea, input[type="text"], select {
+      width: 100%;
+      padding: 0.55rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      transition: border-color 0.2s;
+    }
+    textarea:focus, input[type="text"]:focus, select:focus {
+      outline: none;
+      border-color: #4a6cf7;
+      background: #fff;
+    }
+
+    #hebrew-text {
+      font-size: 1.4rem;
+      direction: rtl;
+      min-height: 90px;
+      font-family: 'SBL Hebrew', 'Ezra SIL', 'Arial Hebrew', serif;
+      line-height: 1.8;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    @media (max-width: 600px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.4rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: #4a6cf7; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #3a5ce6; }
+    .btn-success { background: #2ecc71; color: #fff; }
+    .btn-success:hover:not(:disabled) { background: #27b860; }
+
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    #status {
+      font-size: 0.88rem;
+      color: #555;
+    }
+    #status.error { color: #e74c3c; }
+    #status.success { color: #27ae60; }
+
+    /* Preview table */
+    #preview-section { display: none; }
+
+    .table-wrapper { overflow-x: auto; margin-top: 0.5rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #2c3e7a;
+      color: #fff;
+      padding: 0.5rem 0.8rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.45rem 0.8rem;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f8f9fc; }
+    td.hebrew {
+      direction: rtl;
+      font-size: 1.15rem;
+      font-family: 'SBL Hebrew', 'Ezra SIL', 'Arial Hebrew', serif;
+      text-align: right;
+    }
+    td.phonetics { color: #666; font-style: italic; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<h1>🕎 Torah Translations</h1>
+<p class="subtitle">Traductor interlineado hebreo → español mediante IA</p>
+
+<!-- Input card -->
+<div class="card">
+  <h2>1. Texto hebreo</h2>
+  <div class="field">
+    <label for="hebrew-text">Texto en hebreo (uno o más versículos)</label>
+    <textarea id="hebrew-text" placeholder="הדבק את הטקסט העברי כאן…"></textarea>
+  </div>
+  <div class="field">
+    <label for="model-select">Modelo de IA</label>
+    <select id="model-select">
+      <option value="gpt-4o">gpt-4o</option>
+      <option value="gpt-4o-mini">gpt-4o-mini</option>
+      <option value="o3-mini">o3-mini</option>
+    </select>
+  </div>
+</div>
+
+<!-- Metadata card -->
+<div class="card">
+  <h2>2. Metadatos (opcional)</h2>
+  <div class="grid-2">
+    <div class="field">
+      <label for="meta-book">Nombre del libro</label>
+      <input type="text" id="meta-book" placeholder="ej: LIBRO DE GÉNESIS" />
+    </div>
+    <div class="field">
+      <label for="meta-part">Parashá / sección</label>
+      <input type="text" id="meta-part" placeholder="ej: PARASHAT BERESHIT" />
+    </div>
+    <div class="field">
+      <label for="meta-chapter">Capítulo</label>
+      <input type="text" id="meta-chapter" placeholder="ej: CAPÍTULO 1" />
+    </div>
+    <div class="field">
+      <label for="meta-subchapter">Versículo inicial</label>
+      <input type="text" id="meta-subchapter" placeholder="ej: א" />
+    </div>
+  </div>
+</div>
+
+<!-- Save location card -->
+<div class="card">
+  <h2>3. Destino del archivo</h2>
+  <div class="grid-2">
+    <div class="field">
+      <label for="dest-folder">Carpeta dentro de <code>texts/</code></label>
+      <input type="text" id="dest-folder" placeholder="ej: genesis  o  bamidbar/naso" />
+    </div>
+    <div class="field">
+      <label for="dest-filename">Nombre del archivo (sin extensión)</label>
+      <input type="text" id="dest-filename" placeholder="ej: bereshit" />
+    </div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="card" style="padding-top:1rem; padding-bottom:1rem;">
+  <div class="btn-row">
+    <button class="btn btn-primary" id="translate-btn" onclick="doTranslate()">
+      ✨ Traducir
+    </button>
+    <button class="btn btn-success" id="save-btn" onclick="doSave()" disabled>
+      💾 Guardar TSV
+    </button>
+    <span id="status"></span>
+  </div>
+</div>
+
+<!-- Preview -->
+<div class="card" id="preview-section">
+  <h2>4. Previsualización</h2>
+  <div class="table-wrapper">
+    <table id="preview-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Original (hebreo)</th>
+          <th>Traducción</th>
+          <th>Fonética</th>
+        </tr>
+      </thead>
+      <tbody id="preview-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  let translatedWords = [];
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = type || '';
+  }
+
+  function setLoading(loading) {
+    const btn = document.getElementById('translate-btn');
+    if (loading) {
+      btn.innerHTML = '<span class="spinner"></span> Traduciendo…';
+      btn.disabled = true;
+    } else {
+      btn.innerHTML = '✨ Traducir';
+      btn.disabled = false;
+    }
+  }
+
+  async function doTranslate() {
+    const hebrewText = document.getElementById('hebrew-text').value.trim();
+    const model = document.getElementById('model-select').value;
+
+    if (!hebrewText) {
+      setStatus('Por favor ingresa texto en hebreo.', 'error');
+      return;
+    }
+
+    setLoading(true);
+    setStatus('Consultando modelo de IA…');
+    document.getElementById('save-btn').disabled = true;
+    document.getElementById('preview-section').style.display = 'none';
+
+    try {
+      const res = await fetch('/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hebrew_text: hebrewText, model }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus('Error: ' + (data.error || res.statusText), 'error');
+        return;
+      }
+
+      translatedWords = data.words;
+      renderPreview(translatedWords);
+      setStatus('Traducción lista (' + translatedWords.length + ' entradas).', 'success');
+      document.getElementById('save-btn').disabled = false;
+    } catch (err) {
+      setStatus('Error de red: ' + err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderPreview(words) {
+    const tbody = document.getElementById('preview-body');
+    tbody.innerHTML = '';
+    words.forEach((w, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td class="hebrew">${escHtml(w.original)}</td>
+        <td>${escHtml(w.translation)}</td>
+        <td class="phonetics">${escHtml(w.phonetics)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    document.getElementById('preview-section').style.display = 'block';
+  }
+
+  async function doSave() {
+    const folder = document.getElementById('dest-folder').value.trim();
+    const filename = document.getElementById('dest-filename').value.trim();
+
+    if (!folder || !filename) {
+      setStatus('Debes indicar carpeta y nombre de archivo antes de guardar.', 'error');
+      return;
+    }
+
+    const payload = {
+      words: translatedWords,
+      folder,
+      filename,
+      book: document.getElementById('meta-book').value.trim(),
+      part: document.getElementById('meta-part').value.trim(),
+      chapter: document.getElementById('meta-chapter').value.trim(),
+      subchapter: document.getElementById('meta-subchapter').value.trim(),
+    };
+
+    setStatus('Guardando…');
+    document.getElementById('save-btn').disabled = true;
+
+    try {
+      const res = await fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus('Error: ' + (data.error || res.statusText), 'error');
+      } else {
+        setStatus('✅ ' + data.message, 'success');
+      }
+    } catch (err) {
+      setStatus('Error de red: ' + err.message, 'error');
+    } finally {
+      document.getElementById('save-btn').disabled = false;
+    }
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
