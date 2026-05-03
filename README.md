@@ -6,7 +6,7 @@ Sistema de flashcards para aprendizaje de vocabulario hebreo-español con transl
 
 ```
 torah_translations/
-├── texts/                  # Archivos TSV fuente con traducciones (.csv)
+├── texts/                  # Archivos CSV fuente con traducciones
 │   ├── genesis/
 │   │   ├── bereshit.csv
 │   │   └── noah.csv
@@ -27,23 +27,23 @@ torah_translations/
 
 ### Agregar Nuevas Traducciones
 
-1. Crea o edita archivos TSV en la carpeta `texts/` (guardados con extensión `.csv`)
-2. Formato del archivo (separado por tabulaciones):
-   ```tsv
-   original	translation	phonetics	format	notes
-   LIBRO DE GENESIS			book	
-   PARASHAT BERESHIT	PARASHAT BERESHIT		part	
-   CAPÍTULO 1	CHAPTER 1		chapter	
-   א	1		subchapter	
-   En el principio Dios creó los cielos y la tierra.			intro	
-   בְּרֵאשִׁית	En el principio	Bereshit		
-   בָּרָא	creó	bara		
-   אֱלֹהִים	Dios	Elohim		
+1. Crea o edita archivos CSV en la carpeta `texts/`
+2. Formato del archivo (separado por comas, con comillas cuando un campo contiene comas):
+   ```csv
+   original,translation,phonetics,format,notes
+   LIBRO DE GENESIS,,,book,
+   PARASHAT BERESHIT,PARASHAT BERESHIT,,part,
+   CAPÍTULO 1,CHAPTER 1,,chapter,
+   א,1,,subchapter,
+   En el principio Dios creó los cielos y la tierra.,,,intro,
+   בְּרֵאשִׁית,En el principio,Bereshit,,
+   בָּרָא,creó,bara,,
+   אֱלֹהִים,Dios,Elohim,,
    ```
 
 3. Los archivos se organizan por libro/sección en subcarpetas
 
-### Campos del archivo TSV
+### Campos del archivo CSV
 
 - **original**: Texto original en hebreo o título de sección
 - **translation**: Traducción al español
@@ -53,9 +53,13 @@ torah_translations/
   - `part`: Parte o parashat
   - `chapter`: Capítulo
   - `subchapter`: Subcapítulo o versículo
+  - `license`: Atribución de licencia publicable
+  - `break`: Salto visual entre bloques, por ejemplo entre estribillos y estrofas
   - `intro`: Introducción o explicación
   - (vacío): Palabra o frase del cuerpo del texto
-- **notes**: Notas adicionales o comentarios
+- **notes**: Notas publicables del libro
+
+Usa `book` solo para libros o colecciones. Para una canción, plegaria, salmo, pasaje o texto individual, comienza con `part` u otro bloque estructural apropiado. En filas `subchapter`, coloca el marcador en `original` y deja `translation` y `phonetics` vacíos.
 
 ### Generación Local
 
@@ -63,7 +67,7 @@ torah_translations/
 # Instalar dependencias
 npm install
 
-# Generar archivos JSON desde archivos TSV
+# Generar archivos JSON desde archivos CSV
 npm run build
 ```
 
@@ -80,13 +84,13 @@ El proyecto usa GitHub Actions para:
 
 ## 📚 Formato de Datos
 
-### Archivo TSV de Entrada
-```tsv
-original	translation	phonetics	format	notes
-LIBRO DE GENESIS			book	
-PARASHAT BERESHIT	PARASHAT BERESHIT		part	
-בְּרֵאשִׁית	En el principio	Bereshit		
-בָּרָא	creó	bara		
+### Archivo CSV de Entrada
+```csv
+original,translation,phonetics,format,notes
+LIBRO DE GENESIS,,,book,
+PARASHAT BERESHIT,PARASHAT BERESHIT,,part,
+בְּרֵאשִׁית,En el principio,Bereshit,,
+בָּרָא,creó,bara,,
 ```
 
 ### Archivo JSON de Salida
@@ -111,7 +115,7 @@ Los archivos JSON generados contienen solo las palabras/frases (entradas con for
 ]
 ```
 
-**Nota:** Los archivos TSV de entrada contienen metadatos estructurales (book, part, chapter, subchapter, intro) que se utilizan para organización pero no se incluyen en el JSON de salida. Solo las entradas con `format` vacío (palabras/frases) aparecen en los flashcards.
+**Nota:** Los archivos CSV de entrada contienen metadatos estructurales (book, part, chapter, subchapter, license, intro) que se utilizan para organización pero no se incluyen en el JSON de salida. Solo las entradas con `format` vacío (palabras/frases) aparecen en los flashcards.
 
 ### Índice (index.json)
 ```json
@@ -145,7 +149,7 @@ La página principal muestra:
 - npm
 
 ### Scripts Disponibles
-- `npm run build` - Genera archivos JSON desde archivos TSV
+- `npm run build` - Genera archivos JSON desde archivos CSV
 
 ## 📝 Licencia
 

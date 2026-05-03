@@ -1,22 +1,69 @@
 const fs = require('fs');
 const path = require('path');
 
-// Function to parse TSV (Tab-Separated Values) file
-// Parses files with the format: original	translation	phonetics	format	notes
-function parseTSV(content) {
-  const lines = content.trim().split('\n');
-  
-  // Validate TSV has content
-  if (lines.length < 2) return [];
-  
-  const headers = lines[0].split('\t').map(h => h.trim());
+// Function to parse CSV (Comma-Separated Values) file
+// Parses files with the format: original,translation,phonetics,format,notes
+function parseCSV(content) {
+  const rows = [];
+  let row = [];
+  let value = '';
+  let inQuotes = false;
+
+  const pushValue = () => {
+    row.push(value);
+    value = '';
+  };
+
+  const pushRow = () => {
+    pushValue();
+    if (row.some(cell => cell.trim() !== '')) {
+      rows.push(row);
+    }
+    row = [];
+  };
+
+  const normalizedContent = content.replace(/^\uFEFF/, '');
+
+  for (let i = 0; i < normalizedContent.length; i++) {
+    const char = normalizedContent[i];
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (normalizedContent[i + 1] === '"') {
+          value += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        value += char;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = true;
+    } else if (char === ',') {
+      pushValue();
+    } else if (char === '\n') {
+      pushRow();
+    } else if (char !== '\r') {
+      value += char;
+    }
+  }
+
+  if (value !== '' || row.length > 0) {
+    pushRow();
+  }
+
+  // Validate CSV has content
+  if (rows.length < 2) return [];
+
+  const headers = rows[0].map(h => h.trim());
   const data = [];
-  
-  for (let i = 1; i < lines.length; i++) {
-    // Skip empty lines
-    if (lines[i].trim() === '') continue;
-    
-    const values = lines[i].split('\t').map(v => v.trim());
+
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i].map(v => v.trim());
     const obj = {};
     headers.forEach((header, index) => {
       obj[header] = values[index] || '';
@@ -27,8 +74,8 @@ function parseTSV(content) {
   return data;
 }
 
-// Function to recursively find all TSV files
-function findTSVFiles(dir, baseDir = dir) {
+// Function to recursively find all CSV files
+function findCSVFiles(dir, baseDir = dir) {
   let results = [];
   const files = fs.readdirSync(dir);
   
@@ -37,7 +84,7 @@ function findTSVFiles(dir, baseDir = dir) {
     const stat = fs.statSync(filePath);
     
     if (stat.isDirectory()) {
-      results = results.concat(findTSVFiles(filePath, baseDir));
+      results = results.concat(findCSVFiles(filePath, baseDir));
     } else if (path.extname(file) === '.csv') {
       results.push({
         fullPath: filePath,
@@ -84,8 +131,8 @@ function generateFlashcards() {
     fs.mkdirSync(distDir, { recursive: true });
   }
   
-  // Find all TSV files (with .csv extension)
-  const tsvFiles = findTSVFiles(textsDir);
+  // Find all CSV files
+  const csvFiles = findCSVFiles(textsDir);
   
   // Index to store metadata about all files
   const index = {
@@ -93,13 +140,13 @@ function generateFlashcards() {
     files: []
   };
   
-  // Process each TSV file
-  tsvFiles.forEach(({ fullPath, relativePath }) => {
+  // Process each CSV file
+  csvFiles.forEach(({ fullPath, relativePath }) => {
     console.log(`Processing: ${relativePath}`);
     
-    // Read and parse TSV
+    // Read and parse CSV
     const content = fs.readFileSync(fullPath, 'utf-8');
-    const allEntries = parseTSV(content);
+    const allEntries = parseCSV(content);
     
     // Filter to only include entries with empty format field (actual flashcards)
     const flashcards = allEntries.filter(entry => !entry.format);
@@ -136,7 +183,7 @@ function generateFlashcards() {
   copyPublicFiles(publicDir, distDir);
   
   console.log(`\nGeneration complete!`);
-  console.log(`Processed ${tsvFiles.length} files`);
+  console.log(`Processed ${csvFiles.length} files`);
   console.log(`Total flashcards: ${index.files.reduce((sum, f) => sum + f.cardCount, 0)}`);
   console.log(`Output directory: ${distDir}`);
 }
