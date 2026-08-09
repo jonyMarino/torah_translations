@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "node scripts/generate-flashcards.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "phonetics:check": "python scripts/generate_sephardic_phonetics.py",
+    "phonetics:write": "python scripts/generate_sephardic_phonetics.py --write",
+    "test": "python scripts/test_sephardic_phonetics.py"
   },
   "keywords": [],
   "author": "",
