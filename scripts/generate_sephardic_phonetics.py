@@ -135,11 +135,14 @@ def consonant_of(cluster: Cluster, index: int, clusters: list[Cluster]) -> str:
         previous = clusters[index - 1]
         if has_e_vowel(previous) or (not has_vowel_mark(cluster) and previous.has(MARK["hiriq"])):
             return ""
+    # El jirik ya aporta la i: no escribir una segunda i por la iod.
+    if cluster.letter == "י" and cluster.has(MARK["hiriq"]):
+        return ""
 
     dotted = cluster.has(MARK["dagesh"])
     return {
         "ב": "b" if dotted else "v", "ג": "g", "ד": "d", "ה": "h", "ו": "v", "ז": "z",
-        "ח": "j", "ט": "t", "י": "y", "כ": "k" if dotted else "j", "ך": "k" if dotted else "j",
+        "ח": "j", "ט": "t", "י": "i", "כ": "k" if dotted else "j", "ך": "k" if dotted else "j",
         "ל": "l", "מ": "m", "ם": "m", "נ": "n", "ן": "n", "ס": "s",
         "פ": "p" if dotted else "f", "ף": "p" if dotted else "f", "צ": "tz", "ץ": "tz",
         "ק": "k", "ר": "r", "ש": "s" if cluster.has(MARK["sin_dot"]) else "sh", "ת": "t",
