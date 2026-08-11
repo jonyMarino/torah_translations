@@ -230,7 +230,14 @@ def transliterate_hebrew_word(word: str, has_following_maqaf: bool = False) -> s
 
     accent_index = next((index for index in range(len(units) - 1, -1, -1) if units[index]["stressed"]), -1)
     if accent_index >= 0:
-        stress_index = next((index for index in range(accent_index, -1, -1) if units[index]["nucleus"]), -1)
+        # Cuando el taam está sobre una consonante sin nekudá, señala la
+        # vocal siguiente (p. ej. הַמָּק֖וֹם = hamakom), no la anterior.
+        if not units[accent_index]["nucleus"]:
+            stress_index = next((index for index in range(accent_index + 1, len(units)) if units[index]["nucleus"]), -1)
+            if stress_index < 0:
+                stress_index = next((index for index in range(accent_index, -1, -1) if units[index]["nucleus"]), -1)
+        else:
+            stress_index = accent_index
     else:
         stress_index = next((index for index in range(len(units) - 1, -1, -1) if units[index]["nucleus"]), -1)
     nuclei = [index for index, unit in enumerate(units) if unit["nucleus"]]
