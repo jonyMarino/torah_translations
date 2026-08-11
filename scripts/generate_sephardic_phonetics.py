@@ -118,13 +118,50 @@ def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, h
 
 
 def vocal_sheva(cluster: Cluster, index: int, clusters: list[Cluster]) -> bool:
-    if index == 0 or cluster.has(MARK["meteg"]):
+    # Regla 7: una shevá final es muda. Esto tiene prioridad sobre la regla
+    # de comienzo de palabra para formas de una sola letra.
+    if index == len(clusters) - 1:
+        return False
+
+    following = clusters[index + 1]
+    previous = clusters[index - 1] if index else None
+
+    # Regla 3 y regla 9: la primera de dos shevot es muda; si ambas son las
+    # dos últimas marcas de la palabra, también la segunda es muda.
+    if following.has(MARK["sheva"]):
+        return False
+
+    # Regla 1: shevá al comienzo de palabra.
+    if index == 0:
         return True
-    previous = clusters[index - 1]
-    if has_accent_or_meteg(previous):
+
+    # Regla 2: segunda de dos shevot consecutivas.
+    if previous and previous.has(MARK["sheva"]):
         return True
-    previous_is_shuruk = previous.letter == "ו" and previous.has(MARK["dagesh"]) and not has_vowel_mark(previous)
-    return previous_is_shuruk or previous.has(MARK["sheva"]) or cluster.has(MARK["dagesh"])
+
+    # Una shevá después de shuruk (vocal larga) inicia la sílaba siguiente.
+    previous_is_shuruk = previous and previous.letter == "ו" and previous.has(MARK["dagesh"]) and not has_vowel_mark(previous)
+    if previous_is_shuruk:
+        return True
+
+    # Después de jolam (o larga), la shevá siempre es vocal.
+    if previous and previous.has(MARK["holam"]):
+        return True
+
+    # Regla 5: primera de dos consonantes iguales.
+    if cluster.letter == following.letter:
+        return True
+
+    # Regla 4: shevá bajo consonante con dagesh.
+    if cluster.has(MARK["dagesh"]):
+        return True
+
+    # Regla 6: después de meteg/ma'amid o de un taam.
+    if previous and has_accent_or_meteg(previous):
+        return True
+
+    # Regla 8: en los demás casos la shevá cierra la sílaba anterior y es muda.
+    return False
 
 
 def consonant_of(cluster: Cluster, index: int, clusters: list[Cluster]) -> str:
