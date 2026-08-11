@@ -175,8 +175,10 @@ def consonant_of(cluster: Cluster, index: int, clusters: list[Cluster]) -> str:
     shuruk = cluster.letter == "ו" and cluster.has(MARK["dagesh"]) and not has_vowel_mark(cluster)
     if cluster.letter == "ו" and (cluster.has(MARK["holam"]) or shuruk):
         return ""
-    if cluster.letter in {"א", "ע"}:
+    if cluster.letter == "א":
         return ""
+    if cluster.letter == "ע":
+        return "'"
     if is_final_yod_before_vav(cluster, index, clusters):
         return ""
     if cluster.letter == "ה" and index == len(clusters) - 1 and not cluster.has(MARK["dagesh"]):
