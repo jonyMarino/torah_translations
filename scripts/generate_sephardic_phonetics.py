@@ -80,6 +80,10 @@ def is_mater_ei(cluster: Cluster, index: int, clusters: list[Cluster]) -> bool:
     return bool(cluster.letter == "י" and previous and has_e_vowel(previous))
 
 
+def is_final_yod_before_vav(cluster: Cluster, index: int, clusters: list[Cluster]) -> bool:
+    return cluster.letter == "י" and index == len(clusters) - 2 and clusters[-1].letter == "ו"
+
+
 def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, has_following_maqaf: bool) -> str:
     shuruk = cluster.letter == "ו" and cluster.has(MARK["dagesh"]) and not has_vowel_mark(cluster)
     if shuruk:
@@ -128,6 +132,8 @@ def consonant_of(cluster: Cluster, index: int, clusters: list[Cluster]) -> str:
     if cluster.letter == "ו" and (cluster.has(MARK["holam"]) or shuruk):
         return ""
     if cluster.letter in {"א", "ע"}:
+        return ""
+    if is_final_yod_before_vav(cluster, index, clusters):
         return ""
     if cluster.letter == "ה" and index == len(clusters) - 1 and not cluster.has(MARK["dagesh"]):
         return ""

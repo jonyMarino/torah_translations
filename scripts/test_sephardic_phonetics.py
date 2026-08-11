@@ -15,6 +15,7 @@ class SephardicPhoneticsTests(unittest.TestCase):
             "וּבְחַיֵּי": "uvejaié",
             "בֵּין": "ben",
             "יִשְׂרָאֵל": "israel",
+            "בָּנָיו": "banav",
             "בַּעֲגָלָא": "baagalá",
             "בָּרָא֖": "bará",
             "שָׁמְרָה": "shomrá",
