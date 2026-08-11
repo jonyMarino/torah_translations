@@ -109,6 +109,11 @@ def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, h
     if not cluster.has(MARK["qamats"]):
         return ""
 
+    # Un taam o meteg sobre la kamatz tiene prioridad sobre la sheva que
+    # sigue: mantiene la kamatz gadol como "a" (por ejemplo, לָ֑ךְ = laj).
+    if has_accent_or_meteg(cluster):
+        return "a"
+
     following = clusters[index + 1] if index + 1 < len(clusters) else None
     if following and following.has(MARK["sheva"]):
         # Primero se determina la shevá: si es muda, cierra la sílaba y el
