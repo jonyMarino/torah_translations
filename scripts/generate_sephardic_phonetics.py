@@ -159,6 +159,19 @@ def transliterate_hebrew_word(word: str, has_following_maqaf: bool = False) -> s
     clusters = clusters_for(word)
     if not clusters:
         return word
+    letters = "".join(cluster.letter for cluster in clusters)
+    tetragram_index = letters.find("יהוה")
+    if tetragram_index >= 0:
+        # יהוה se lee Adonai en cualquier vocalización masorética. Conserva
+        # la fonética de prefijos/sufijos que estén pegados a la palabra.
+        raw = [cluster.letter + cluster.marks for cluster in clusters]
+        prefix = transliterate_hebrew_word("".join(raw[:tetragram_index])) if tetragram_index else ""
+        suffix = transliterate_hebrew_word("".join(raw[tetragram_index + 4:])) if tetragram_index + 4 < len(raw) else ""
+        # La pataj del prefijo y la a inicial de Adonai forman una sola a:
+        # בַּיהוה → badonai, לַיהוה → ladonai.
+        if prefix.endswith("a"):
+            prefix = prefix[:-1]
+        return prefix + "adonai" + suffix
     bare = bare_hebrew(clusters)
     units: list[dict[str, object]] = []
     for index, cluster in enumerate(clusters):
