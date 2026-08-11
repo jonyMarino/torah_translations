@@ -70,12 +70,14 @@ def has_accent_or_meteg(cluster: Cluster) -> bool:
     return re.search(r"[\u0591-\u05af]", cluster.marks) is not None or cluster.has(MARK["meteg"])
 
 
+def has_e_vowel(cluster: Cluster) -> bool:
+    """Devuelve si la nekuda del grupo anterior se transcribe como e."""
+    return any(cluster.has(MARK[name]) for name in ("hataf_segol", "tsere", "segol"))
+
+
 def is_mater_ei(cluster: Cluster, index: int, clusters: list[Cluster]) -> bool:
     previous = clusters[index - 1] if index else None
-    return bool(
-        cluster.letter == "י" and not has_vowel_mark(cluster) and previous
-        and (previous.has(MARK["tsere"]) or previous.has(MARK["segol"]))
-    )
+    return bool(cluster.letter == "י" and previous and has_e_vowel(previous))
 
 
 def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, has_following_maqaf: bool) -> str:
@@ -83,9 +85,10 @@ def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, h
     if shuruk:
         return "u"
     previous = clusters[index - 1] if index else None
-    if cluster.letter == "י" and not has_vowel_mark(cluster) and previous:
-        if previous.has(MARK["tsere"]) or previous.has(MARK["segol"]):
-            return "i"
+    if cluster.letter == "י" and previous and has_e_vowel(previous):
+        # La iod no aporta una consonante tras e. Su jirik, si existe, aporta
+        # únicamente la i del diptongo: בֵּין → bein.
+        return "i" if cluster.has(MARK["hiriq"]) else ""
     for name, value in (
         ("hataf_patah", "a"), ("hataf_segol", "e"), ("hataf_qamats", "o"),
         ("patah", "a"), ("tsere", "e"), ("segol", "e"), ("hiriq", "i"),
@@ -128,9 +131,9 @@ def consonant_of(cluster: Cluster, index: int, clusters: list[Cluster]) -> str:
         return ""
     if cluster.letter == "ה" and index == len(clusters) - 1 and not cluster.has(MARK["dagesh"]):
         return ""
-    if cluster.letter == "י" and not has_vowel_mark(cluster) and index:
+    if cluster.letter == "י" and index:
         previous = clusters[index - 1]
-        if previous.has(MARK["hiriq"]) or previous.has(MARK["tsere"]) or previous.has(MARK["segol"]):
+        if has_e_vowel(previous) or (not has_vowel_mark(cluster) and previous.has(MARK["hiriq"])):
             return ""
 
     dotted = cluster.has(MARK["dagesh"])
