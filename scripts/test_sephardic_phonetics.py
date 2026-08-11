@@ -23,10 +23,14 @@ class SephardicPhoneticsTests(unittest.TestCase):
             "יֱהֹוִה": "adonai",
             "בַּיהוָה": "badonai",
             "לַיהוָה": "ladonai",
-            "בַּעֲגָלָא": "baagalá",
+            "בַּעֲגָלָא": "ba'agalá",
             "בָּרָא֖": "bará",
             "שָׁמְרָה": "shomrá",
             "שָֽׁמְרָה": "shámera",
+            "לָ֑ךְ": "laj",
+            "הַמָּק֖וֹם": "hamakom",
+            "עַל": "'al",
+            "שְׁעָרֶ֙יךָ֙": "she'areja",
             "כָּל־הָאָרֶץ": "kol-haaretz",
         }
         for source, expected in cases.items():

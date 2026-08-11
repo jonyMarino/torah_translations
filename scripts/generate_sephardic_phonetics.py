@@ -230,7 +230,8 @@ def transliterate_hebrew_word(word: str, has_following_maqaf: bool = False) -> s
             "stressed": has_accent_or_meteg(cluster),
         })
 
-    accent_index = next((index for index in range(len(units) - 1, -1, -1) if units[index]["stressed"]), -1)
+    # Si hay varios taamim, el primero es el que determina el acento léxico.
+    accent_index = next((index for index in range(len(units)) if units[index]["stressed"]), -1)
     if accent_index >= 0:
         # Cuando el taam está sobre una consonante sin nekudá, señala la
         # vocal siguiente (p. ej. הַמָּק֖וֹם = hamakom), no la anterior.
