@@ -110,8 +110,10 @@ def vowel_of(cluster: Cluster, index: int, clusters: list[Cluster], bare: str, h
         return ""
 
     following = clusters[index + 1] if index + 1 < len(clusters) else None
-    if following and following.has(MARK["sheva"]) and not has_accent_or_meteg(cluster):
-        return "o"
+    if following and following.has(MARK["sheva"]):
+        # Primero se determina la shevá: si es muda, cierra la sílaba y el
+        # kamatz pasa a o; si es vocal, la sílaba queda abierta y es a.
+        return "a" if vocal_sheva(following, index + 1, clusters) else "o"
     if has_following_maqaf and following and index == len(clusters) - 2 and not has_vowel_mark(following) and not has_accent_or_meteg(cluster):
         return "o"
     return "a"
